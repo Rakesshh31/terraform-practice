@@ -2,9 +2,9 @@ name: Terraform CI/CD
 
 on:
   workflow_dispatch:        # Manual trigger from GitHub UI
-  push:
-    branches:
-      - main                # Trigger on push to main branch
+  # push:
+  #   branches:
+  #     - main                # Trigger on push to main branch
 
 # env:
 #   TF_DIR: ./Day-2-introduction   # 📁 Terraform directory path
