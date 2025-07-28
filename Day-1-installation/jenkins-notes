@@ -1,0 +1,1385 @@
+--------############# CICD #############---------------
+--------------------------------------------------
+
+what is CICD?
+
+In software engineering, CI/CD or CICD is the combined practices of continuous integration and continuous delivery or, less often, continuous deployment. They are sometimes referred to collectively as continuous development or continuous software development
+
+Why Jenkins? 
+
+Jenkins is an open-source automation tool for Continuous Integration (CI) and Continuous Deployment (CD).
+
+It is an open-source tool with great community support.
+It is easy to install.
+It has 1000+ plugins to ease your work. If a plugin does not exist, you can code it and share it with the community.
+It is free of cost.
+It is built with Java and hence, it is portable to all the major platforms.
+Inventor: kohsuke kawaguchi
+its a free and open-source tool.
+jenkins written on java.
+it can automate entire sdlc.
+it is owned by sun micro system as hudson.
+hudson is paid version.
+later oracle brought hudson and make it free.
+later hudson was renamed as jenkins.
+
+
+
+jenkins runs on 8080 port 
+
+For amazon linux 2023 AMi type
+=================================
+
+Login to server with username and switch to root user
+command : sudo su - 
+Provide the password
+===================
+
+jenkin supports JAVA 11/17
+
+sudo dnf update -y --> it will install or updates the patches
+
+sudo dnf install java-11-amazon-corretto -y --> to install the openjdk11
+
+sudo yum install java-17-amazon-corretto.x86_64
+
+
+sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo --> Install the repo
+
+if wget command not found.Please install the wget software using this command "yum install wget -y"
+
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key --> Import the required key
+
+sudo yum install jenkins -y --> install the jenkins
+
+sudo systemctl enable jenkins --> Enable the jenkins
+
+sudo systemctl start jenkins --> start jenkins
+
+sudo systemctl status jenkins --> check the status of jenkins service
+
+TO CONNECT:
+public_ip:8080 (browser)
+cat /var/lib/jenkins/secrets/initialAdminPassword (server)
+paster password on browser -- > installing plugins --- > user details -- > start
+
+WORKSPACE: job output is going to be stored in workspace
+
+Default: /var/lib/jenkins/workspace
+
+
+=================================================
+
+Process for Amazon linux 2 AMI type
+==========================================
+
+
+Login to server with username and switch to root user
+command : sudo su - 
+Provide the password
+===================
+
+sudo yum update -y --> it will install or updates the patches
+
+sudo amazon-linux-extras install java-openjdk11 -y --> to install the openjdk11
+
+sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo --> Install the repo
+
+if wget command not found.Please install the wget software using this command "yum install wget -y"
+
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key --> Import the required key
+
+sudo yum install jenkins -y --> install the jenkins
+
+sudo systemctl enable jenkins --> Enable the jenkins
+
+sudo systemctl start jenkins --> start jenkins
+
+sudo systemctl status jenkins --> check the status of jenkins service
+
+
+-------------------------------------------------------------
+---------------------------Triggers-------------------------
+
+In Jenkins, a build trigger is a mechanism that initiates the execution of a Jenkins job or pipeline. Triggers are used to start builds automatically based on various events or conditions. There are several ways to trigger builds in Jenkins:
+
+Manual Build Trigger:
+
+Build Now: You can manually trigger a build at any time by clicking the “Build Now” or “Build” button on the Jenkins dashboard for a specific job. This is useful for ad-hoc or on-demand builds.
+Scheduled Build Trigger:
+
+Build Periodically: You can schedule builds to run at specific intervals using the “Build periodically” option in the job configuration. You can use cron syntax to define the schedule. For example, to run a build every night at 2:00 AM, you can use the cron expression 0 2 * * *.
+SCM (Source Code Management) Trigger:
+
+Poll SCM: If you’re using a version control system (e.g., Git, Subversion), you can configure the job to poll the repository for changes. When changes are detected, Jenkins will automatically trigger a build. This is known as the “Poll SCM” build trigger.
+Webhooks Trigger:
+
+Webhooks: Many version control systems and external services support webhooks, which allow them to notify Jenkins when code changes occur. Jenkins can listen for these webhook notifications and trigger builds in response.
+Dependency Build Trigger:
+
+Build after other projects are built: You can configure a job to be triggered after one or more upstream jobs have been built successfully. This is useful for creating build pipelines or ensuring that certain prerequisites are met before starting a build.
+Parameterized Build Trigger:
+
+ex: Job1------job2-----job3
+
+here job1 upstream is job2
+     job2 downstream is Job1
+     job2 upstream is Job3
+     job3 downstream is job2
+
+so whenever jb1 triggers after that job2 will trigeere agter that job3 will trigger 
+
+if any one downstream job fail means necxt upstream job will not success 
+
+Trigger builds with parameters: You can set up parameterized builds where a build is triggered with specific parameter values. This is useful for customizing builds based on input parameters.
+Pipeline Trigger:
+
+Pipeline Trigger: If you’re using Jenkins Pipelines (defined in a Jenkinsfile), you can use various triggers within the pipeline script itself. For example, you can set up a webhook trigger, a schedule trigger, or a manual input trigger as part of your pipeline script.
+Remote API Trigger:
+
+
+Jenkins has numerous plugins available that can provide additional trigger mechanisms. For example, the “GitHub Webhook” plugin allows Jenkins to listen to GitHub events and trigger builds accordingly.
+The choice of build trigger method depends on your specific use case and requirements. 
+
+-----------------pipeline ----------------
+
+1. Declaritive
+2. Groovy scripted 
+
+------------------------------------------------
+Declaritive 
+---------------------------------------------------
+Basic Example:
+
+(PASSS:shortcut)
+----------------------
+single stage:example 
+-----------------------------------
+pipeline {
+    agent any
+
+    stages {
+        stage('first') {
+            steps {
+                echo 'Hello first stage'
+            }
+        }
+    }
+}
+
+--------------------------
+multi stage example:
+-------------------------
+pipeline {
+    agent any
+
+    stages {
+        stage('first') {
+            steps {
+                echo 'Hello first stage'
+            }
+        }
+        
+        stage('second') {
+            steps {
+                echo 'Hello second stage'
+            }
+        }
+    }
+
+
+example-1 to build maven by using pipleine (CI) multi stage 
+
+pipeline {
+    agent any
+
+    stages {
+        stage('scm') {
+            steps {
+                git branch: 'main', credentialsId: 'terraform', url: 'https://github.com/nareshdevopscloud/devops_maven.git'
+            }
+        }
+        stage('clean') {
+            steps {
+                sh "mvn clean"
+            }
+        }
+        stage('install') {
+            steps {
+                sh "mvn install"
+            }
+        }
+    
+    }
+}
+
+
+example-2
+
+
+PIPELINE AS A CODE: multiple commands or action inside a single stage.
+
+pipeline {
+    agent any
+    
+    stages {
+        stage('one') {
+            steps {
+                git branch: 'main', credentialsId: 'terraform', url: 'https://github.com/nareshdevopscloud/devops_maven.git'
+                sh 'mvn compile'
+                sh 'mvn test'
+                sh 'mvn clean package'
+            }
+        }
+    }
+}
+
+---------------------------------------------------------------------------
+Groovy
+---------------------------------------------------------
+Basic example:
+
+ node{
+   stage{"first") {
+   sh file-1
+    }
+   stage{"second") {
+   sh file-2
+    }
+}
+
+
+-------------Ci JOB using Groovy----------------------
+
+node {
+    stage('git') { 
+        git branch: 'main', credentialsId: 'terraform', url: 'https://github.com/nareshdevopscloud/devops_maven.git'
+    }
+    stage('clean') {
+        sh "mvn clean"
+        }
+    
+    stage('install') {
+        sh "mvn install"
+        
+    }
+}
+
+Note Using Jenknins deployinmg the Terraform IaC(Infrastructure as Code)
+
+------------------- terraform installation-----------------
+
+sudo yum install -y yum-utils shadow-utils
+sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+sudo yum -y install terraform
+
+------------------------------
+# Deploy Terraform script by using jenkins 
+
+----declaritive--------
+
+pipeline {
+    agent any
+
+    stages {
+        stage('checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/CloudTechDevOps/Terraform_CICD.git'
+            }
+        }
+        stage('init') {
+            steps {
+                sh "terraform init -reconfigure"
+            }
+        }
+        stage('plan') {
+            steps {
+                sh "terraform plan"
+            }
+        }
+        stage('action') {
+            steps {
+                sh "terraform ${action} --auto-approve"
+            }
+        }
+    }
+}
+
+
+------------------------groovy-----------------
+
+node {
+    stage('checkout') { 
+        git branch: 'main', credentialsId: 'terraform', url: 'https://github.com/nareshdevopscloud/terraform-jenkins.git'
+    }
+    stage('init') {
+        sh "terraform init -reconfigure"
+        
+        }
+    stage('action') {
+        sh "terraform ${action} --auto-approve"
+        
+        }
+}
+
+
+-----------------------------------------------
+approach 3: 
+
+
+Note:   
+
+
+#created jenkins file uploded into github
+
+#we can run job by calling above jenkins file in git hub 
+
+--To Implement 
+
+give GITHUB url and in defination section we need to "sleect pipeline script from scm" option and build the job
+#Jenkins file
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+    
+        stage ("terraform init") {
+            steps {
+                sh ("terraform init -reconfigure") 
+            }
+        }
+        
+        stage ("plan") {
+            steps {
+                sh ('terraform plan') 
+            }
+        }
+
+        stage (" Action") {
+            steps {
+                echo "Terraform action is --> ${action}"
+                sh ('terraform ${action} --auto-approve') 
+           }
+        }
+    }
+}
+ 
+
+==================================================================
+#### Jenkins version upgrade and downgrade ####
+
+jenkins --version
+
+cd /usr/share/java
+
+rm -rf jenkins.war
+
+to download new version war ---> https://updates.jenkins.io/download/war/
+
+take any version on right click and copy the link download by using wget command 
+
+cd /usr/share/java
+
+find new war file which you downloaded version 
+
+#restart your jenkins sudo systemctl start jenkins 
+
+jenkins --version 
+
+login in the jenkins severs check your jobs 
+
+=========================================================================
+
+
+sudo yum list java*  # to upgrade the java --version 
+
+select any one of the version and give yum install <selecte version> -y
+
+yum list installed java*  #to check 
+
+
+
+------------------------------------------------------------------------------------------
+
+------------------------------------CD------------------------------------------------------
+
+After builld the war file we have to deploy in any application serever like "TOMCAT"
+
+Create one Ec2 instance if (amazon linux 2) ----note : if you choose linux 2023 commands will different)
+
+Need to install java
+
+for java 11
+sudo amazon-linux-extras install java-openjdk11
+
+for java 17
+sudo yum install java-17-amazon-corretto.x86_64
+
+
+
+################  Tomcat  #########
+
+#Install tomcat 
+
+wget url https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.83/bin/apache-tomcat-9.0.83.tar.gz
+
+#untar  tar -xvzf <apachetomcat-tarfile>
+
+
+#Rename it if required   mv <apachetomcat-tarfile> tomcat
+
+tomcat/bin -----sh startup.sh   --to start
+                sh shutdown.sh  -- to stop
+ 
+#to change port number ------ /conf/server.xml
+
+war file should place in -------------/tomcat/webapps 
+
+#####################################################
+custom manager app tomcat --------find / -name context.xml
+
+----after finding the file need to open with vi
+
+example -- vi /opt/tomcat/webapps/manager/META-INF/context.xml
+
+add comment it below two line <!--     -->
+ ex: <!--  <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+     allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> -->
+ 
+2.vi /opt/tomcat/webapps/host-manager/META-INF/context.xml
+
+<!--<Valve className="org.apache.catalina.valves.RemoteAddrValve"
+  allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> -->
+
+#########################################################
+username and password to login
+
+cd tomcat/config/tomcat-user.xml 
+
+vi tomcat-users.xml and add custom username password 
+
+#ADD BELOW CONTENT   
+
+  <role rolename="manager-gui"/>
+  <role rolename="manager-script"/>
+  <role rolename="manager-jmx"/>
+  <role rolename="manager-status"/>
+  <user username="admin" password="admin" roles="manager-gui, manager-script, manager-jmx, manager-status"/>
+  <user username="deployer" password="deployer" roles="manager-script"/>
+  <user username="tomcat" password="s3cret" roles="manager-gui"/>
+
+
+
+
+### Maven project Job: CICD deployer on Tomcat
+step-1 need to configure Maven and jenkins paths in global tool configuration
+
+/usr/share/maven                              #MAVEN_HOME
+/usr/lib/jvm/java-17-amazon-corretto.x86_64   #JAVA_HOME
+
+step-2
+
+plugin stageview
+plugin maven
+plugin Deployment container 
+
+step-3:
+Dashboard --->Manage Jenkins --->Credentials --->System -- >Global credentials (unrestricted)
+need to configure credentials --username : deployer password deployer   :--- reference from ( <user username="deployer" password="deployer" roles="manager-script"/>)
+
+step-4 create maven job and give git url for source code to build 
+
+step-5 give build actions goals like test, install etc..
+
+step-6 In postbuild actions select war/ear file to give path of War --path **/*.war 
+
+step-7 we need to add container (tomcat) we have to give configured credentials of tomcat and give url of tomcat
+
+webhook 
+http://34.228.189.137:8080/github-webhook/
+
+we have to give jenkins URL as payload url
+
+
+
+"CI/CD----Maven job---Javaproject"
+####pipelinejob:example
+
+pipeline {
+    agent any
+
+    stages {
+        stage('stage-1') {
+            steps {
+                git branch: 'main', url: 'https://github.com/CloudTechDevOps/project-1-maven-jenkins-CICD-docker-eks-.git'
+            }
+        }
+   
+        stage('clean') {
+            steps {
+              sh  'mvn clean'
+            }
+        }
+        
+        stage('test') {
+            steps {
+              sh  'mvn test'
+            }
+        }
+        stage('install') {
+            steps {
+               sh  'mvn install'
+            }
+        }
+        
+        stage('deployment') {
+            steps {
+                
+              deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://100.26.194.72:8080/')], contextPath: null, war: 'webapp/target/*.war'
+
+            }
+        }
+        
+    }
+}
+
+Note : while generating the scrip we have to give path of ear/war file should be -- webapp/target/*.war  (# this is as per my project folder reference )
+
+
+
+Why Only Jfrog
+Jfrog Artifactory?
+What is Artifact
+what is artifact Repository?
+why artifact Repository?
+Type of packages it supports:
+How to setup Artifactory server on AWS 
+Artifact Deployment from maven to Jfrog
+Artifactory Integration with jenkins
+
+repository management tool
+===========================
+ - Repository management tools helps development teams create, maintain, and track their software packages.
+
+Options
+-------
+1. Jfrog Artifact
+2. Nexus
+3. Apache Archiva
+4. Nuget
+5. github
+6. s3
+
+Why Only Jfrog
+--------------
+But jfrog supports wide range of formets and types.
+Eg:- 
+     python repo
+     chef repo
+     puppet repo
+     Apt repo
+     yum repo
+     docker repo
+     rpm repo
+     maven repo...etc
+
+- it is a repository management tool
+- A universal artifact repository manager
+- JFrog Artifactory is a repository manager that supports all available software package types
+- Artifactory, the first-in-class binary repository management
+
+Jfrog Artifactory?
+==================
+Jfrog Artifactory is a tool used in devops methodology to store artifacts (readily deployable code)
+
+What is Artifact
+----------------
+The files that contain both compiled code and resources that are used to compile them are know as artifact. 
+- They are readily deployable files.
+								     	
+- source code  -->  Build Tools  -->  Compilation  -->  Binary code -->  Dependencys/resources -->  Artifact
+
+- in java an artifacts would be jar, war, ear...etc file
+- in .net an artifacts would be .dll file
+
+
+ 								    	 
+what is artifact Repository?
+----------------------------
+- An artifact repository is a repository which can store multiple different versions of artifacts.each
+  time the war or tar.gz file is created. it stored in a server dedicated for the artifacts.
+
+
+in real-time in the above process if you have any error in test env, we will rollback to version control to fix it. instead of that if you store artifacts in repo we can rollback to prevision version.
+
+Author
+------
+https://jfrog.com
+- they have number of products like 
+    - Jfrog Artifactory (Very Popular)
+    - Jfrog Pipelines
+    - Jfrog x-ray
+    - Jfrog connect
+    - JFrog Container Registry ...etc
+ 
+Written in
+------------
+- Jfrog developed in java. it is platform independent(run in windows, mac, Linux)
+
+Releases
+--------
+- Free, Professional and Enterprice
+
+Free vs Pro
+-----------
+	https://jfrog.com/community/download-artifactory-oss/
+
+Type of packages it supports:
+-----------------------------
+	https://www.jfrog.com/confluence/display/JFROG/Package+Management
+Note:- what kind of repo = what kind of package
+
+
+
+ How to setup Artifactory server on AWS 
+---------------------------------------
+
+1. Pre-requisites:
+   An AWS T2.medium (4GB RAM)EC2 instance (Linux)
+   Open port 8081 and 8082 in the security group
+
+wget https://releases.jfrog.io/artifactory/artifactory-rpms/artifactory-rpms.repo -O jfrog-artifactory-rpms.repo;
+
+sudo mv jfrog-artifactory-rpms.repo /etc/yum.repos.d/;
+
+sudo yum update && sudo yum install jfrog-artifactory-oss
+
+systemctl start artifactory.service
+
+systemctl status artifactory.service
+
+
+     http://<PUBLIC_IP_Address>:8081
+
+After Login we need to Provide 
+
+Username as admin
+Password as password 
+
+#Note:we have to change it password after loggedin
+
+
+
+########## APPROACH-1 #########
+
+Artifact Deployment from maven to Jfrog without jenkins 
+=======================================
+
+1. Add Deployment element to maven pom.xml file.
+ <distributionManagement>
+    <repository>
+        <id>central</id>
+        <name>NareshIT</name>
+        <url>http://34.238.157.19:8081/artifactory/naresh-repo</url>
+    </repository>
+    <snapshotRepository>
+        <id>central</id>
+        <name>NareshIT</name>
+        <url>http://34.238.157.19:8081/artifactory/naresh-repo</url>
+    </snapshotRepository>
+</distributionManagement>
+
+2. Add Jfrog Credentials to apache-maven-3.8.6-->--conf-->settings.xml file.
+	<servers>
+	    <server>
+      		<id>naresh</id>
+      		<username>admin</username>
+      		<password>naresh_123</password>
+    	    </server>
+	</servers>
+
+3. Navigate to maven structure where pom.xml and src locates, and give below command.
+    - mvn Deploy
+
+
+###############APPROACH-2##########
+
+Artifactory Integration maven integration with Jfrog by  using jenkins
+=====================================
+
+pre-requisites
+
+A Artifactory server
+A Jenkins Server
+
+Integration Steps
+
+Login to Jenkins to integrate Artifactory with Jenkins
+
+1. Install "Artifactory" plug-in
+     Manage Jenkins -> Jenkins Plugins -> available -> artifactory
+2. Configure Artifactory server credentials
+     Manage Jenkins -> Configure System -> Artifactory (or) Jfrog
+3. Artifactory Servers
+	Server ID : test
+	URL : Artifactory Server URL (http://localhost:8081/)
+	Username : admin
+	Password : default password is "password" only. (login with default password later you can change)
+        Test the connection
+
+
+
+Approach-1  
+Create a Freestyle Project
+
+- Create a new job
+    ->  Job Name : ex:Job1
+- Source code management
+    ->  Github URL : <githuburl>
+- Build Environment
+    ->  Maven3-Artifactory Integration : `<provide Artifactory server and repository details
+- Build --> Invoke Artifactory Maven3
+- Goals: clean deploy
+- Execute job
+
+Approach-2
+
+# Create a Maven Project
+- Create a new job
+    ->. Job Name : ex:Job2
+- Source code management
+    ->  Github URL : <github>
+- Build Environment(optional)
+    ->  Resolve artifacts from Artifactory : <provide Artifactory server and repository details>
+- Build - Goals: clean install
+    ->. Post-build Actions
+- Deploy Artifacts to Artifactory : <provide Artifactory server and repository details>
+- Execute job
+ 
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Approach-3  (recomended)
+
+step-1 Install Artifactory plugin 
+
+       
+step-2 Configure Artifactory server credentials
+          Manage Jenkins -> Configure System -> Artifactory (or) Jfrog (Note: after configure serverID it will take care of URL and authentication of JFROG)
+Step-3 create pipeline job
+
+
+pipeline {
+    agent any
+
+    stages {
+        stage('stage-1') {
+            steps {
+                git branch: 'main', credentialsId: 'terraform', url: 'https://github.com/nareshdevopscloud/project-maven-jenkins-CI-CD.git'
+            }
+        }
+   
+        stage('clean') {
+            steps {
+              sh  'mvn clean'
+            }
+        }
+        
+        stage('test') {
+            steps {
+              sh  'mvn test'
+            }
+        }
+        stage('install') {
+            steps {
+               sh  'mvn install'
+            }
+        }
+        
+        stage('Push artifacts into artifactory') {
+            steps {
+              rtUpload (
+                serverId: 'jfrog_server',
+                spec: '''{
+                      "files": [
+                        {
+                          "pattern": "*.war",
+                           "target": "test/"
+                        }
+                    ]
+                }'''
+              )
+          }
+        }
+        
+        stage('deployment') {
+            steps {
+                
+             deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://3.93.63.17:8080/')], contextPath: null, war: 'webapp/target/*.war'
+
+            }
+        }
+        
+        
+    }
+}
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------
+---------------------------lambda with jenkins ---------------------
+
+
+case-1 Through pipe line to run python code 
+
+
+require dependecnies for case-1
+install below dependencies inside your jenkins server 
+
+
+yum update -y #update 
+
+yum install python -y # install python
+
+wget https://bootstrap.pypa.io/get-pip.py #download pip
+
+python3 get-pip.py  #install pip
+
+pip install boto3  #to install boto3 
+
+pip show boto3     #to verify boto3 
+
+
+
+pipeline {
+    agent any
+
+    stages {
+        stage('checkout') {
+            steps {
+                <Github>
+            }
+        }
+stage('run python code') {
+            steps {
+               sh 'python file.py'
+            }
+        }
+         
+    }
+}
+
+
+case-2 run your python code in lambda function (code is loacted in github)
+
+AWS lambda pluging
+
+aws credentials plugin
+
+
+ 
+i have run code in my github need to run this code in my lambda function
+
+
+---------------------------------------------------------------------------------------------------------------------------
+-------------------jenkins with docker ----------------------------------------------------------------------------
+jenkins Docker
+
+
+Pre-requistes:
+1. Jenkins is up and running
+2. Docker installed on Jenkins instance. Click here to for integrating Docker and Jenkins
+3. Docker and Docker pipelines plug-in are installed
+4. Repo created in ECR, Click here to know how to do that.
+5. Make sure port 8096 is opened up in firewall rules. 
+6. Create an IAM role with AmazonEC2ContainerRegistryFullAccess policy, attach to Jenkins EC2 instance
+7. Make sure AWS cli is installed in Jenkins instance.
+
+plugins 
+
+docker 
+
+ecr
+
+Jenkins pipeline to automate the following:
+- Automating builds
+- Automating Docker image builds
+- Automating Docker image upload into AWS ECR
+- Automating Docker container provisioning
+
+
+
+
+
+pipeline {
+    agent any
+    options {
+        skipStagesAfterUnstable()
+    }
+    stages {
+         stage('Clone repository') { 
+            steps { 
+                git branch: 'main', credentialsId: 'git', url: 'https://github.com/nareshdevopscloud/jenkins-dockerbuild.git'
+            }
+        }
+
+
+     stage('maven install') { 
+            steps { 
+                sh 'mvn install'
+        }
+        stage('Build') { 
+            steps { 
+                sh '''docker build -t test2 .
+                      docker rm -f $(docker ps -aq)
+                      docker run -d -p 8081:80 test
+                      docker system prune -a
+                      '''
+                
+            }
+        }
+        
+        stage('push to ecr ') {
+            steps {
+                sh '''
+                aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 987075663466.dkr.ecr.us-east-1.amazonaws.com
+                docker tag test:latest 987075663466.dkr.ecr.us-east-1.amazonaws.com/test2:latest
+                docker push 987075663466.dkr.ecr.us-east-1.amazonaws.com/test2:latest
+                '''
+            }
+            }
+        }
+    }
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+       -------------------------------------------------- #### ARTIFACTORY TOOL ####------------------------------------------------------------------------
+
+ 
+Artifactory is a universal DevOps solution for hosting, managing, and distributing binaries and artifacts. Any type of software in binary form – such as application installers, container images, libraries, configuration files, etc. – can be curated, secured, stored, and delivered using Artifactory.
+
+
+
+Why Only Jfrog
+Jfrog Artifactory?
+What is Artifact
+what is artifact Repository?
+why artifact Repository?
+Type of packages it supports:
+How to setup Artifactory server on AWS 
+Artifact Deployment from maven to Jfrog
+Artifactory Integration with jenkins
+
+repository management tool
+===========================
+ - Repository management tools helps development teams create, maintain, and track their software packages.
+
+Options
+-------
+1. Jfrog Artifact
+2. Nexus
+3. Apache Archiva
+4. Nuget
+5. github
+6. s3
+
+Why Only Jfrog
+--------------
+But jfrog supports wide range of formets and types.
+Eg:- 
+     python repo
+     chef repo
+     puppet repo
+     Apt repo
+     yum repo
+     docker repo
+     rpm repo
+     maven repo...etc
+
+- it is a repository management tool
+- A universal artifact repository manager
+- JFrog Artifactory is a repository manager that supports all available software package types
+- Artifactory, the first-in-class binary repository management
+
+Jfrog Artifactory?
+==================
+Jfrog Artifactory is a tool used in devops methodology to store artifacts (readily deployable code)
+
+What is Artifact
+----------------
+The files that contain both compiled code and resources that are used to compile them are know as artifact. 
+- They are readily deployable files.
+								     	
+- source code  -->  Build Tools  -->  Compilation  -->  Binary code -->  Dependencys/resources -->  Artifact
+
+- in java an artifacts would be jar, war, ear...etc file
+- in .net an artifacts would be .dll file
+
+
+ 								    	 
+what is artifact Repository?
+----------------------------
+- An artifact repository is a repository which can store multiple different versions of artifacts.each
+  time the war or tar.gz file is created. it stored in a server dedicated for the artifacts.
+
+
+in real-time in the above process if you have any error in test env, we will rollback to version control to fix it. instead of that if you store artifacts in repo we can rollback to prevision version.
+
+Author
+------
+https://jfrog.com
+- they have number of products like 
+    - Jfrog Artifactory (Very Popular)
+    - Jfrog Pipelines
+    - Jfrog x-ray
+    - Jfrog connect
+    - JFrog Container Registry ...etc
+ 
+Written in
+------------
+- Jfrog developed in java. it is platform independent(run in windows, mac, Linux)
+
+Releases
+--------
+- Free, Professional and Enterprice
+
+Free vs Pro
+-----------
+	https://jfrog.com/community/download-artifactory-oss/
+
+Type of packages it supports:
+-----------------------------
+	https://www.jfrog.com/confluence/display/JFROG/Package+Management
+Note:- what kind of repo = what kind of package
+
+
+
+ How to setup Artifactory server on AWS 
+---------------------------------------
+
+1. Pre-requisites:
+   An AWS T2.medium (4GB RAM)EC2 instance (Linux)
+   Open port 8081 and 8082 in the security group
+
+wget https://releases.jfrog.io/artifactory/artifactory-rpms/artifactory-rpms.repo -O jfrog-artifactory-rpms.repo;
+
+sudo mv jfrog-artifactory-rpms.repo /etc/yum.repos.d/;
+
+sudo yum update && sudo yum install jfrog-artifactory-oss
+
+systemctl start artifactory.service
+
+systemctl status artifactory.service
+
+
+     http://<PUBLIC_IP_Address>:8081
+
+After Login we need to Provide 
+
+Username as admin
+Password as password 
+
+#Note:we have to change it password after loggedin
+
+
+
+########## APPROACH-1 #########
+
+Artifact Deployment from maven to Jfrog without jenkins 
+=======================================
+
+1. Add Deployment element to maven pom.xml file.
+ <distributionManagement>
+    <repository>
+        <id>central</id>
+        <name>NareshIT</name>
+        <url>http://34.238.157.19:8081/artifactory/naresh-repo</url>
+    </repository>
+    <snapshotRepository>
+        <id>central</id>
+        <name>NareshIT</name>
+        <url>http://34.238.157.19:8081/artifactory/naresh-repo</url>
+    </snapshotRepository>
+</distributionManagement>
+
+2. Add Jfrog Credentials to apache-maven-3.8.6-->--conf-->settings.xml file.
+	<servers>
+	    <server>
+      		<id>naresh</id>
+      		<username>admin</username>
+      		<password>naresh_123</password>
+    	    </server>
+	</servers>
+
+3. Navigate to maven structure where pom.xml and src locates, and give below command.
+    - mvn Deploy
+
+
+###############APPROACH-2##########
+
+Artifactory Integration maven integration with Jfrog by  using jenkins
+=====================================
+
+pre-requisites
+
+A Artifactory server
+A Jenkins Server
+
+Integration Steps
+
+Login to Jenkins to integrate Artifactory with Jenkins
+
+1. Install "Artifactory" plug-in
+     Manage Jenkins -> Jenkins Plugins -> available -> artifactory
+2. Configure Artifactory server credentials
+     Manage Jenkins -> Configure System -> Artifactory (or) Jfrog
+3. Artifactory Servers
+	Server ID : test
+	URL : Artifactory Server URL (http://localhost:8081/)
+	Username : admin
+	Password : default password is "password" only. (login with default password later you can change)
+        Test the connection
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Approach-3  (recomended)
+
+step-1 Install Artifactory plugin 
+
+       
+step-2 Configure Artifactory server credentials
+          Manage Jenkins -> Configure System -> Artifactory (or) Jfrog (Note: after configure serverID it will take care of URL and authentication of JFROG)
+Step-3 create pipeline job
+
+
+pipeline {
+    agent any
+
+    stages {
+        stage('stage-1') {
+            steps {
+                git branch: 'main', credentialsId: 'terraform', url: 'https://github.com/nareshdevopscloud/project-maven-jenkins-CI-CD.git'
+            }
+        }
+   
+        stage('clean') {
+            steps {
+              sh  'mvn clean'
+            }
+        }
+        
+        stage('test') {
+            steps {
+              sh  'mvn test'
+            }
+        }
+        stage('install') {
+            steps {
+               sh  'mvn install'
+            }
+        }
+        
+        stage('Push artifacts into artifactory') {
+            steps {
+              rtUpload (
+                serverId: 'jfrog_server',
+                spec: '''{
+                      "files": [
+                        {
+                          "pattern": "*.war",
+                           "target": "test/"
+                        }
+                    ]
+                }'''
+              )
+          }
+        }
+        
+        stage('deployment') {
+            steps {
+                
+             deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://3.93.63.17:8080/')], contextPath: null, war: 'webapp/target/*.war'
+
+            }
+        }
+        
+        
+    }
+}
+
+
+
+
+-------------------------------------------------------------------------------------------------
+------------------------------- ####### SONARQUBE ####### -------------------------------------------------
+
+-----------------------------------------------------------------------------------------------
+Code Quality check tool
+
+SonarQube ------------------other tools (veracode, coverity, codescence)
+
+SonarQube is a very popular code quality management tool that is used widely for code analysis to identify code smells, possible bugs, and performance enhancements. SonarQube supports many popular programming languages like Java, JavaScript, C#, Python, Kotlin, Scala etc. It also provides test and code coverage.
+
+
+Benfits:
+Improve quality.
+Grow developer skills.
+Continuous quality management.
+Reduce risk(vulnerabilities).
+Scale with ease.
+Code quality and smell
+
+code smell : A maintainability issue that makes your code confusing and difficult to maintain.
+
+Code vulnerabilities: Code vulnerabilities are software flaws that open opportunities for potential application misuse, exploits, or breaches that result in sensitive information disclosure, data leaks, ransomware attacks, and other cyber security issues.
+-----------------
+
+threecompontes 
+------>sonarquber server 
+
+----->rules --apply rules on code 
+
+--defult data base embedded H2 database 
+
+------>scanner 
+gather rules 
+scan the source code  
+send the reports to database  
+
+
+
+
+STEUP:
+
+required 4gb ram and 2 cpus
+dependency: java11 or 17
+req: t2.medium
+port: 9000
+
+#Launch an t2.medium instance with allow port 9000 
+
+amazon-linux-extras install java-openjdk11 -y   #if amzon linux 2
+sudo dnf install java-11-amazon-corretto  # if amazon linux 2023
+cd /opt/ #switch to opt directory
+sudo wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-8.9.6.50800.zip
+sudo unzip sonarqube-8.9.6.50800.zip
+
+# sonarqube has to run with user only 
+sudo useradd sonar
+sudo chown sonar:sonar sonarqube-8.9.6.50800 -R
+sudo chmod 777 sonarqube-8.9.6.50800 -R
+
+passwd sonar (create password)
+su - sonar (log in as sonar)
+
+#run this on server manually
+sh /opt/sonarqube-8.9.6.50800/bin/linux-x86-64/sonar.sh start
+sh /opt/sonarqube-8.9.6.50800/bin/linux-x86-64/sonar.sh status
+ 
+to start ----- sh sonar.sh start or ./sonar.sh start
+to check status ----- sh sonar.sh status
+
+#to access 
+public-ip:9000
+user=admin & password=admin
+
+note : after login we need to give our custom password 
+---------------------------------------------------------------------
+
+
+
+----sonarQube on Docker -------
+
+docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
+--------------------------------------------------------------------
+
+----#####  CONFIGURATION PROCESS  ####------
+
+
+
+Configure Manual process --------------------- 
+
+we need to add in maven pom.xml or run command manually in manula server 
+
+below example script 
+mvn install sonar:sonar \
+                -Dsonar.projectKey=Maven \
+                -Dsonar.host.url=http://54.157.10.29:9000 \
+                -Dsonar.login=4ade7feac8a30117e6658d71751a590c3d2b854d
+
+
+
+
+
+configure with jenkins-------------------------------------
+
+prerequistes :
+
+create token in sonarqube ---->after login go to adminstration---security--user--create token
+
+
+
+
+step-1
+
+--Required plugins--
+
+sonarqube scanner for jenkins
+
+qulaity gates if required (optional)
+
+step-2 
+
+go to credential and select text mode paste you token and give name 
+
+go to system configurations paste url and select key and give name ex: 'SonarQube'  (note: this name only we have to call like withSonarQubeEnv('SonarQube'))
+
+
+step-3
+
+create jenkins job and paste below script mavne and sonar 
+
+
+passing with envvironment varaibles without hards coded values (sonar url and token)
+
+pipeline {
+    agent any
+
+    stages {
+        stage('scm') {
+            steps {
+                git 'https://github.com/nareshdevopscloud/hello-world.git'
+            }
+        }
+        stage('clean') {
+            steps {
+                sh 'mvn clean'
+                           
+            }
+        }
+        stage('code quality') {
+            steps {
+                withSonarQubeEnv('SonarQube'){    
+                sh 'mvn install sonar:sonar'
+               
+            }
+        }
+        }
+    }
+}
+
+  
